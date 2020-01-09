@@ -60,7 +60,7 @@
 					'entry_id' => 'int(11)',
 					'handle' => [
 						'type' => 'varchar(255)',
-						'null' => auto,
+						'null' => 'auto',
 					],
 					'value' => [
 						'type' => 'varchar(255)',
