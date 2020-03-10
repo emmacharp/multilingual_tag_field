@@ -139,8 +139,6 @@
 			$langs = FLang::getLangs();
 
 			$wrapper->setAttribute('class', $wrapper->getAttribute('class').' field-multilingual');
-			$container = new XMLElement('div', null, array('class' => 'container'));
-
 
 			/*------------------------------------------------------------------------------------------------*/
 			/*  Label  */
@@ -148,20 +146,30 @@
 
 			$label = Widget::Label($this->get('label'));
 			if( $this->get('required') != 'yes' ) $label->appendChild(new XMLElement('i', __('Optional')));
-			$container->appendChild($label);
+
+
+
+			/*------------------------------------------------------------------------------------------------*/
+			/*  Errors  */
+			/*------------------------------------------------------------------------------------------------*/
+
+			if( $flagWithError != null )
+				$wrapper->appendChild(Widget::Error($label, $flagWithError));
+			else
+				$wrapper->appendChild($label);
 
 
 			/*------------------------------------------------------------------------------------------------*/
 			/*  Tabs  */
 			/*------------------------------------------------------------------------------------------------*/
 
-			$ul = new XMLElement('ul', null, array('class' => 'tabs'));
+			$ul = new XMLElement('ul', null, array('class' => 'tabs multilingualtabs'));
 			foreach( $langs as $lc ){
 				$li = new XMLElement('li', $lc, array('class' => $lc));
 				$lc === $main_lang ? $ul->prependChild($li) : $ul->appendChild($li);
 			}
 
-			$container->appendChild($ul);
+			$wrapper->appendChild($ul);
 
 
 			/*------------------------------------------------------------------------------------------------*/
@@ -180,7 +188,7 @@
 					$value = (is_array($data['value-'.$lc]) ? self::__tagArrayToString($data['value-'.$lc]) : $data['value-'.$lc]);
 				}
 
-				$label->appendChild(
+				$div->appendChild(
 					Widget::Input(
 						"fields{$fieldnamePrefix}[{$this->get('element_name')}][{$lc}]{$fieldnamePostfix}",
 						(strlen($value) != 0 ? General::sanitize($value) : null)
@@ -192,8 +200,7 @@
 				if( $this->get('pre_populate_source') != null ){
 
 					$existing_tags = $this->findAllTags($lc);
-
-					if( is_array($existing_tags) && !empty($existing_tags) ){
+					if (is_array($existing_tags) && strlen($existing_tags[0]) > 0){
 						$taglist = new XMLElement('ul');
 						$taglist->setAttribute('class', 'tags');
 						$taglist->setAttribute('data-interactive', 'data-interactive');
@@ -208,18 +215,9 @@
 					}
 
 				}
-				$container->appendChild($div);
+				$wrapper->appendChild($div);
 			}
 
-
-			/*------------------------------------------------------------------------------------------------*/
-			/*  Errors  */
-			/*------------------------------------------------------------------------------------------------*/
-
-			if( $flagWithError != null )
-				$wrapper->appendChild(Widget::Error($container, $flagWithError));
-			else
-				$wrapper->appendChild($container);
 		}
 
 
@@ -270,7 +268,7 @@
 
 				// complete array values with empty values to insert same number of fields
 				// for all languages to avoid SQL malfunction avoid in multiple insert generation
-				$count = count($field_result['value']);
+				$count = is_array($field_result) ? count($field_result['value']) : 0;
 				for( $i = $max_lang_tags; $i > $count; $i-- ){
 					$field_result['value'][] = '';
 					$field_result['handle'][] = '';
