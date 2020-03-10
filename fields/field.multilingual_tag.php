@@ -110,7 +110,7 @@
 			return Symphony::Database()
 				->update('tbl_fields_' . $this->handle())
 				->set([
-					'def_ref_lang' => $this->get('def_ref_lang'),
+					'def_ref_lang' => $this->get('def_ref_lang') === 'yes' ? 'yes' : 'no',
 				])
 				->where(['field_id' => $this->get('id')])
 				->execute()
